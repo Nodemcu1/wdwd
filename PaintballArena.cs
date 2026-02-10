@@ -210,7 +210,8 @@ namespace Oxide.Plugins
         {
             if (player == null || input == null) return;
             var session = GetSession(player);
-            if (session == null || session.MovementLocks <= 0) return;
+            if (session == null) return;
+            if (Volatile.Read(ref session.MovementLocks) <= 0) return;
 
             input.Clear();
             if (player.eyes != null)
@@ -931,9 +932,15 @@ namespace Oxide.Plugins
             var session = GetSession(player);
             if (session == null) return;
             var newValue = Interlocked.Decrement(ref session.MovementLocks);
-            if (newValue < 0)
+            while (newValue < 0)
             {
-                Interlocked.Exchange(ref session.MovementLocks, 0);
+                var original = Interlocked.CompareExchange(ref session.MovementLocks, 0, newValue);
+                if (original == newValue)
+                {
+                    break;
+                }
+
+                newValue = original;
             }
         }
 
