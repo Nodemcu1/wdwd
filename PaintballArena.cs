@@ -208,10 +208,14 @@ namespace Oxide.Plugins
         private void OnPlayerInput(BasePlayer player, InputState input)
         {
             if (player == null || input == null) return;
-            if (!sessions.TryGetValue(player.userID, out var session) || session == null || session.MovementLocks <= 0) return;
+            var session = GetSession(player);
+            if (session.MovementLocks <= 0) return;
 
             input.Clear();
-            input.current.aimAngles = player.eyes.rotation.eulerAngles;
+            if (player.eyes != null)
+            {
+                input.current.aimAngles = player.eyes.rotation.eulerAngles;
+            }
         }
 
         private void CmdPaintballAdmin(BasePlayer player, string command, string[] args)
@@ -925,10 +929,7 @@ namespace Oxide.Plugins
             if (player == null) return;
             var session = GetSession(player);
             if (session == null) return;
-            if (session.MovementLocks > 0)
-            {
-                session.MovementLocks--;
-            }
+            session.MovementLocks = Math.Max(0, session.MovementLocks - 1);
         }
 
         private void DestroyAllUi(BasePlayer player)
