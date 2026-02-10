@@ -205,6 +205,15 @@ namespace Oxide.Plugins
             }
         }
 
+        private void OnPlayerInput(BasePlayer player, InputState input)
+        {
+            if (player == null || input == null) return;
+            if (!sessions.TryGetValue(player.userID, out var session) || session.MovementLocks <= 0) return;
+
+            input.Clear();
+            input.current.aimAngles = player.eyes.rotation.eulerAngles;
+        }
+
         private void CmdPaintballAdmin(BasePlayer player, string command, string[] args)
         {
             if (player == null || !player.IsAdmin)
@@ -296,6 +305,7 @@ namespace Oxide.Plugins
             session.Team = TeamColor.None;
             session.QueuedMode = null;
             session.IsSpectator = false;
+            session.MovementLocks = 0;
 
             CleanupInventory(player);
             if (session.PreLobbyPosition.HasValue)
@@ -507,6 +517,7 @@ namespace Oxide.Plugins
                 session.Mode = ArenaMode.None;
                 session.IsEliminated = false;
                 session.IsSpectator = false;
+                session.MovementLocks = 0;
 
                 if (!forced)
                 {
@@ -613,8 +624,7 @@ namespace Oxide.Plugins
             {
                 var player = BasePlayer.FindByID(playerId);
                 if (player == null) continue;
-                player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
-                player.SendNetworkUpdateImmediate();
+                LockMovement(player);
             }
 
             timer.Once(seconds, () =>
@@ -623,8 +633,7 @@ namespace Oxide.Plugins
                 {
                     var player = BasePlayer.FindByID(playerId);
                     if (player == null) continue;
-                    player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
-                    player.SendNetworkUpdateImmediate();
+                    UnlockMovement(player);
                 }
             });
         }
@@ -873,8 +882,7 @@ namespace Oxide.Plugins
             {
                 var player = BasePlayer.FindByID(playerId);
                 if (player == null) continue;
-                player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
-                player.SendNetworkUpdateImmediate();
+                LockMovement(player);
                 CuiHelper.DestroyUi(player, UiMvp);
 
                 var container = new CuiElementContainer();
@@ -898,11 +906,24 @@ namespace Oxide.Plugins
                     CuiHelper.DestroyUi(player, UiMvp);
                     if (player != null)
                     {
-                        player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
-                        player.SendNetworkUpdateImmediate();
+                        UnlockMovement(player);
                     }
                 });
             }
+        }
+
+        private void LockMovement(BasePlayer player)
+        {
+            if (player == null) return;
+            var session = GetSession(player);
+            session.MovementLocks++;
+        }
+
+        private void UnlockMovement(BasePlayer player)
+        {
+            if (player == null) return;
+            var session = GetSession(player);
+            session.MovementLocks = Math.Max(0, session.MovementLocks - 1);
         }
 
         private void DestroyAllUi(BasePlayer player)
@@ -1213,6 +1234,7 @@ namespace Oxide.Plugins
             public bool IsSpectator;
             public ArenaMode? QueuedMode;
             public SerializableVector3? PreLobbyPosition;
+            public int MovementLocks;
         }
 
         private class Match
