@@ -211,7 +211,7 @@ namespace Oxide.Plugins
             if (player == null || input == null) return;
             var session = GetSession(player);
             if (session == null) return;
-            if (Volatile.Read(ref session.MovementLocks) <= 0) return; // Guard for transient negative values.
+            if (Volatile.Read(ref session.MovementLocks) <= 0) return; // Movement locks only apply when count is above zero.
 
             input.Clear();
             if (player.eyes != null)
@@ -941,10 +941,6 @@ namespace Oxide.Plugins
                 }
 
                 newValue = Volatile.Read(ref session.MovementLocks);
-                if (newValue >= 0)
-                {
-                    break;
-                }
             }
         }
 
