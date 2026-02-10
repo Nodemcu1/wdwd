@@ -209,7 +209,7 @@ namespace Oxide.Plugins
         {
             if (player == null || input == null) return;
             var session = GetSession(player);
-            if (session.MovementLocks <= 0) return;
+            if (session == null || session.MovementLocks <= 0) return;
 
             input.Clear();
             if (player.eyes != null)
