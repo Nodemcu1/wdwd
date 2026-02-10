@@ -613,7 +613,7 @@ namespace Oxide.Plugins
             {
                 var player = BasePlayer.FindByID(playerId);
                 if (player == null) continue;
-                player.SetPlayerFlag(BasePlayer.PlayerFlags.Frozen, true);
+                player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
                 player.SendNetworkUpdateImmediate();
             }
 
@@ -623,7 +623,7 @@ namespace Oxide.Plugins
                 {
                     var player = BasePlayer.FindByID(playerId);
                     if (player == null) continue;
-                    player.SetPlayerFlag(BasePlayer.PlayerFlags.Frozen, false);
+                    player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
                     player.SendNetworkUpdateImmediate();
                 }
             });
@@ -873,7 +873,7 @@ namespace Oxide.Plugins
             {
                 var player = BasePlayer.FindByID(playerId);
                 if (player == null) continue;
-                player.SetPlayerFlag(BasePlayer.PlayerFlags.Frozen, true);
+                player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
                 player.SendNetworkUpdateImmediate();
                 CuiHelper.DestroyUi(player, UiMvp);
 
@@ -898,7 +898,7 @@ namespace Oxide.Plugins
                     CuiHelper.DestroyUi(player, UiMvp);
                     if (player != null)
                     {
-                        player.SetPlayerFlag(BasePlayer.PlayerFlags.Frozen, false);
+                        player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
                         player.SendNetworkUpdateImmediate();
                     }
                 });
