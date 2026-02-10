@@ -184,9 +184,9 @@ namespace Oxide.Plugins
             if (player == null) return;
             if (trigger == null) return;
 
-            var triggerEntity = trigger.GetComponent<BaseEntity>();
-            if (triggerEntity == null) return;
-            if (!triggerLookup.TryGetValue(triggerEntity.net.ID, out var definition)) return;
+            var baseEntity = trigger.GetComponent<BaseEntity>();
+            if (baseEntity == null) return;
+            if (!triggerLookup.TryGetValue(baseEntity.net.ID, out var definition)) return;
 
             switch (definition.Type)
             {
