@@ -825,24 +825,24 @@ namespace Oxide.Plugins
             AddAdminButton(container, panel, "Arena3 SpawnA", "pbadmin.setspawn Arena3SpawnA", 0.1f);
             AddAdminButton(container, panel, "Arena3 SpawnB", "pbadmin.setspawn Arena3SpawnB", 0.0f);
 
-            var y = 0.7f;
+            var buttonOffsetY = 0.7f;
             foreach (var team in Enum.GetValues(typeof(TeamColor)).Cast<TeamColor>().Where(t => t != TeamColor.None))
             {
-                AddAdminButton(container, panel, $"Sphere Team {team}", $"pbadmin.setsphere Team {team}", y);
-                y -= 0.1f;
+                AddAdminButton(container, panel, $"Sphere Team {team}", $"pbadmin.setsphere Team {team}", buttonOffsetY);
+                buttonOffsetY -= 0.1f;
             }
 
-            AddAdminButton(container, panel, "Sphere Lobby Join", "pbadmin.setsphere LobbyJoin", y);
-            y -= 0.1f;
-            AddAdminButton(container, panel, "Sphere Lobby Leave", "pbadmin.setsphere LobbyLeave", y);
-            y -= 0.1f;
-            AddAdminButton(container, panel, "Sphere Mode 1v1", "pbadmin.setsphere Mode OneVsOne", y);
-            y -= 0.1f;
-            AddAdminButton(container, panel, "Sphere Mode 2v2", "pbadmin.setsphere Mode TwoVsTwo", y);
-            y -= 0.1f;
-            AddAdminButton(container, panel, "Sphere Mode 5v5", "pbadmin.setsphere Mode FiveVsFive", y);
-            y -= 0.1f;
-            AddAdminButton(container, panel, "Reset Match 5v5", "pbadmin.resetmatch FiveVsFive", y);
+            AddAdminButton(container, panel, "Sphere Lobby Join", "pbadmin.setsphere LobbyJoin", buttonOffsetY);
+            buttonOffsetY -= 0.1f;
+            AddAdminButton(container, panel, "Sphere Lobby Leave", "pbadmin.setsphere LobbyLeave", buttonOffsetY);
+            buttonOffsetY -= 0.1f;
+            AddAdminButton(container, panel, "Sphere Mode 1v1", "pbadmin.setsphere Mode OneVsOne", buttonOffsetY);
+            buttonOffsetY -= 0.1f;
+            AddAdminButton(container, panel, "Sphere Mode 2v2", "pbadmin.setsphere Mode TwoVsTwo", buttonOffsetY);
+            buttonOffsetY -= 0.1f;
+            AddAdminButton(container, panel, "Sphere Mode 5v5", "pbadmin.setsphere Mode FiveVsFive", buttonOffsetY);
+            buttonOffsetY -= 0.1f;
+            AddAdminButton(container, panel, "Reset Match 5v5", "pbadmin.resetmatch FiveVsFive", buttonOffsetY);
 
             CuiHelper.AddUi(player, container);
         }
@@ -961,8 +961,8 @@ namespace Oxide.Plugins
                 var ammoDef = ItemManager.FindItemDefinition(PaintballAmmo);
                 if (ammoDef == null) return;
 
-                var oneInChamber = mode == ArenaMode.OneVsOne || mode == ArenaMode.TwoVsTwo;
-                weapon.primaryMagazine.contents = oneInChamber ? 1 : Math.Max(weapon.primaryMagazine.capacity, 1);
+                var restrictedAmmo = mode == ArenaMode.OneVsOne || mode == ArenaMode.TwoVsTwo;
+                weapon.primaryMagazine.contents = restrictedAmmo ? 1 : Math.Max(weapon.primaryMagazine.capacity, 1);
                 weapon.primaryMagazine.ammoType = ammoDef;
                 weapon.primaryMagazine.contentType = ammoDef.itemid;
                 weapon.primaryMagazine.capacity = Math.Max(1, weapon.primaryMagazine.capacity);
@@ -994,7 +994,22 @@ namespace Oxide.Plugins
 
         private bool TryGetArenaSpawns(ArenaMode mode, out SerializableVector3 spawnA, out SerializableVector3 spawnB)
         {
-            var keyPrefix = mode == ArenaMode.FiveVsFive ? "Arena1" : mode == ArenaMode.TwoVsTwo ? "Arena2" : "Arena3";
+            string keyPrefix;
+            switch (mode)
+            {
+                case ArenaMode.FiveVsFive:
+                    keyPrefix = "Arena1";
+                    break;
+                case ArenaMode.TwoVsTwo:
+                    keyPrefix = "Arena2";
+                    break;
+                case ArenaMode.OneVsOne:
+                    keyPrefix = "Arena3";
+                    break;
+                default:
+                    keyPrefix = "Arena3";
+                    break;
+            }
             if (storedData.SpawnPoints.TryGetValue($"{keyPrefix}SpawnA", out spawnA)
                 && storedData.SpawnPoints.TryGetValue($"{keyPrefix}SpawnB", out spawnB))
             {
