@@ -934,12 +934,7 @@ namespace Oxide.Plugins
             var newValue = Interlocked.Decrement(ref session.MovementLocks);
             while (newValue < 0)
             {
-                var original = Interlocked.CompareExchange(ref session.MovementLocks, 0, newValue);
-                if (original == newValue)
-                {
-                    break;
-                }
-
+                Interlocked.CompareExchange(ref session.MovementLocks, 0, newValue);
                 newValue = Volatile.Read(ref session.MovementLocks);
             }
         }
