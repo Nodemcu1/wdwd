@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Oxide.Core;
 using Oxide.Game.Rust.Cui;
 using UnityEngine;
@@ -921,7 +922,7 @@ namespace Oxide.Plugins
             if (player == null) return;
             var session = GetSession(player);
             if (session == null) return;
-            session.MovementLocks++;
+            Interlocked.Increment(ref session.MovementLocks);
         }
 
         private void UnlockMovement(BasePlayer player)
@@ -929,7 +930,11 @@ namespace Oxide.Plugins
             if (player == null) return;
             var session = GetSession(player);
             if (session == null) return;
-            session.MovementLocks = Math.Max(0, session.MovementLocks - 1);
+            var newValue = Interlocked.Decrement(ref session.MovementLocks);
+            if (newValue < 0)
+            {
+                Interlocked.Exchange(ref session.MovementLocks, 0);
+            }
         }
 
         private void DestroyAllUi(BasePlayer player)
