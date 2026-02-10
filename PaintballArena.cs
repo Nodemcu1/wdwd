@@ -916,6 +916,7 @@ namespace Oxide.Plugins
         {
             if (player == null) return;
             var session = GetSession(player);
+            if (session == null) return;
             session.MovementLocks++;
         }
 
@@ -923,6 +924,7 @@ namespace Oxide.Plugins
         {
             if (player == null) return;
             var session = GetSession(player);
+            if (session == null) return;
             session.MovementLocks = Math.Max(0, session.MovementLocks - 1);
         }
 
