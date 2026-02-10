@@ -24,7 +24,7 @@ namespace Oxide.Plugins
         private ConfigData config;
 
         private readonly Dictionary<ulong, PlayerSession> sessions = new Dictionary<ulong, PlayerSession>();
-        private readonly Dictionary<uint, TriggerDefinition> triggerLookup = new Dictionary<uint, TriggerDefinition>();
+        private readonly Dictionary<NetworkableId, TriggerDefinition> triggerLookup = new Dictionary<NetworkableId, TriggerDefinition>();
         private readonly Dictionary<ArenaMode, Queue<TeamColor>> queues = new Dictionary<ArenaMode, Queue<TeamColor>>();
         private readonly Dictionary<ArenaMode, Match> activeMatches = new Dictionary<ArenaMode, Match>();
         private Timer queueUiTimer;
